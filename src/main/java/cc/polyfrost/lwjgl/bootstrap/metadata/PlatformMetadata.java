@@ -33,7 +33,7 @@ public final class PlatformMetadata {
         EnumOperatingSystem operatingSystem = platform.getOperatingSystem();
         EnumArchitecture architecture = platform.getArchitecture();
 
-        String classifier = operatingSystem.getOsName().toLowerCase();
+        String classifier = "natives-" + operatingSystem.getOsName().toLowerCase();
         if (architecture != EnumArchitecture.X86_64) {
             classifier += "-" + architecture.getIdentifier().toLowerCase();
             if (classifier.contains("aarch")) {
