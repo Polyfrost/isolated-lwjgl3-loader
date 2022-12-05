@@ -97,7 +97,4 @@ enum Lwjgl3Downloader {
                 )
         );
     }
-
-    private ArtifactMetadata lwjglNativesArtifact(String moduleName, PlatformMetadata platformMeta) {
-    }
 }
