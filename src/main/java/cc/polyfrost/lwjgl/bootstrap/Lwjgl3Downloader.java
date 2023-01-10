@@ -3,6 +3,7 @@ package cc.polyfrost.lwjgl.bootstrap;
 import cc.polyfrost.lwjgl.bootstrap.metadata.ArtifactMetadata;
 import cc.polyfrost.lwjgl.bootstrap.metadata.PlatformMetadata;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -17,14 +18,17 @@ import java.util.List;
  * @author xtrm
  * @since 0.0.1
  */
+@VisibleForTesting
 enum Lwjgl3Downloader {
     /**
      * The singleton instance.
      */
     INSTANCE;
 
-    private static final String MAVEN_CENTRAL_URL = "https://repo1.maven.org/maven2/";
-    private static final String[] LWJGL_MODULES = {"nanovg", "tinyfd", "stb"};
+    private static final String MAVEN_CENTRAL_URL =
+            "https://repo1.maven.org/maven2/";
+    private static final String[] LWJGL_MODULES =
+            new String[] {"nanovg", "tinyfd", "stb"};
 
     /**
      * The maven repository URL from which to fetch LWJGL3.
@@ -51,10 +55,14 @@ enum Lwjgl3Downloader {
      * @return The path to the downloaded jar(s).
      * @throws IOException If an I/O error occurs.
      */
-    public @NotNull List<Path> ensureDownloaded(int minecraftVersion) throws IOException {
-        PlatformMetadata platformMetadata = PlatformMetadata.from(minecraftVersion);
+    public @NotNull List<Path> ensureDownloaded(
+            int minecraftVersion
+    ) throws IOException {
+        PlatformMetadata platformMetadata =
+                PlatformMetadata.from(minecraftVersion);
 
-        List<ArtifactMetadata> remoteMetadata = Lwjgl3Downloader.INSTANCE.fetchArtifactsInfo(platformMetadata);
+        List<ArtifactMetadata> remoteMetadata =
+                Lwjgl3Downloader.INSTANCE.fetchArtifactsInfo(platformMetadata);
         return null;
     }
 
@@ -65,7 +73,9 @@ enum Lwjgl3Downloader {
      * @return The list of required artifacts for this context.
      * @throws IOException If an I/O error occurs.
      */
-    public List<ArtifactMetadata> fetchArtifactsInfo(PlatformMetadata platformMeta) throws IOException {
+    public List<ArtifactMetadata> fetchArtifactsInfo(
+            PlatformMetadata platformMeta
+    ) throws IOException {
         List<ArtifactMetadata> artifacts = new ArrayList<>();
 
         if (platformMeta.requiresSystemPlatform) {
@@ -75,14 +85,13 @@ enum Lwjgl3Downloader {
             artifacts.addAll(lwjglArtifacts(module, platformMeta));
         }
 
-        for (ArtifactMetadata it : artifacts) {
-            it.resolveHash(mavenRepository);
-        }
-
         return artifacts;
     }
 
-    private Collection<ArtifactMetadata> lwjglArtifacts(String moduleName, PlatformMetadata platformMeta) {
+    private Collection<ArtifactMetadata> lwjglArtifacts(
+            String moduleName,
+            PlatformMetadata platformMeta
+    ) {
         return Arrays.asList(
                 new ArtifactMetadata(
                         "org.lwjgl",

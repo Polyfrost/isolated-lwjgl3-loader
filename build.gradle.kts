@@ -11,17 +11,19 @@ repositories {
 }
 
 dependencies {
-    implementation("fr.stardustenterprises", "plat4k", "1.6.3") {
-        exclude("org.jetbrains.kotlin", "kotlin-stdlib")
-        exclude("net.java.dev.jna", "jna")
-    }
+    implementation("fr.stardustenterprises", "plat4k", "1.6.3")
 
     implementation("org.jetbrains", "annotations", "23.0.0")
+    testImplementation("org.junit.jupiter", "junit-jupiter-engine", "5.8.1")
 }
 
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
 }
 
 configure<PublishingExtension> {
@@ -43,7 +45,7 @@ configure<PublishingExtension> {
                 developers {
                     developer {
                         id.set("xtrm")
-                        name.set("Killian <oss@xtrm.me>")
+                        name.set("killian <oss@xtrm.me>")
                     }
                 }
 

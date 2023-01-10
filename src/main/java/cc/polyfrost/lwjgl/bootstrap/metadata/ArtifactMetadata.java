@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
 /**
@@ -48,16 +49,16 @@ public class ArtifactMetadata {
         this.artifactHash = readUrl(url);
     }
 
-    public @NotNull String getFilename() {
+    public @NotNull String getFileName() {
         return artifactId + "-" + version + (classifier != null ? "-" + classifier : "") + "." + (extension != null ? extension : "jar");
     }
 
     public @NotNull String getMavenPath() {
-        return groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + getFilename();
+        return groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + getFileName();
     }
 
     private static String readUrl(String targetUrl) throws IOException {
-        try (Scanner scanner = new Scanner(new URL(targetUrl).openStream(), "UTF-8")) {
+        try (Scanner scanner = new Scanner(new URL(targetUrl).openStream(), StandardCharsets.UTF_8)) {
             scanner.useDelimiter("\\A");
             return scanner.hasNext() ? scanner.next() : "";
         }
