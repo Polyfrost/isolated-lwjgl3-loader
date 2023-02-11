@@ -1,0 +1,18 @@
+[
+    {
+        "modid": "${id}",
+        "name": "${name}",
+        "description": "gayming!",
+        "version": "${version}",
+        "mcversion": "${mcVersionStr}",
+        "url": "",
+        "updateUrl": "",
+        "authorList": [
+            "xtrm"
+        ],
+        "credits": "",
+        "logoFile": "",
+        "screenshots": [],
+        "dependencies": []
+    }
+]

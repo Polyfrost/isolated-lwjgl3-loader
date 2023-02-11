@@ -32,16 +32,31 @@ public class MetadataTests {
     }
 
     @Test
-    public void test() {
+    public void artifacts_1_8_9() {
         PlatformMetadata platformMetadata =
                 PlatformMetadata.from(10809);
 
         assertDoesNotThrow(() -> {
             List<ArtifactMetadata> artifacts = Lwjgl3Downloader.INSTANCE
-                    .fetchArtifactsInfo(platformMetadata);
+                    .requiredFor(platformMetadata);
 
             // System + NVG, TFD & STB, * 2 for natives (so 8 in total uwu)
             assertEquals((1 + 3) * 2, artifacts.size());
+        });
+    }
+
+    @Test
+    public void artifacts_1_16_5() {
+        PlatformMetadata platformMetadata =
+                PlatformMetadata.from(11605);
+
+        assertDoesNotThrow(() -> {
+            List<ArtifactMetadata> artifacts = Lwjgl3Downloader.INSTANCE
+                    .requiredFor(platformMetadata);
+            artifacts.forEach(it -> System.out.println(it.getArtifactDeclaration()));
+
+            // NVG, TFD & STB, * 2 for natives (so 6 in total uwu)
+            assertEquals((3) * 2, artifacts.size());
         });
     }
 }

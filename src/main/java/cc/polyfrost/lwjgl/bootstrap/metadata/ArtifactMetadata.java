@@ -57,6 +57,22 @@ public class ArtifactMetadata {
         return groupId.replace(".", "/") + "/" + artifactId + "/" + version + "/" + getFileName();
     }
 
+    public @NotNull String getArtifactDeclaration() {
+        return groupId + ":" + artifactId + ":" + version + (classifier != null ? ":" + classifier : "") + (extension != null && !extension.equals("jar") ? ":" + extension : "");
+    }
+
+    @Override
+    public String toString() {
+        return "ArtifactMetadata{" +
+                "groupId='" + groupId + '\'' +
+                ", artifactId='" + artifactId + '\'' +
+                ", version='" + version + '\'' +
+                ", classifier='" + classifier + '\'' +
+                ", extension='" + extension + '\'' +
+                ", artifactHash='" + artifactHash + '\'' +
+                '}';
+    }
+
     private static String readUrl(String targetUrl) throws IOException {
         try (Scanner scanner = new Scanner(new URL(targetUrl).openStream(), StandardCharsets.UTF_8)) {
             scanner.useDelimiter("\\A");
