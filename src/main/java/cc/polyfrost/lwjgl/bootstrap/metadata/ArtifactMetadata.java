@@ -1,5 +1,6 @@
 package cc.polyfrost.lwjgl.bootstrap.metadata;
 
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,13 +13,19 @@ import java.util.Scanner;
  * @author xtrm
  * @since 0.0.1
  */
-public class ArtifactMetadata {
-    public final @NotNull String groupId;
-    public final @NotNull String artifactId;
-    public final @NotNull String version;
-    public final @Nullable String classifier;
-    public final @Nullable String extension;
-    public @Nullable String artifactHash;
+public final @Data class ArtifactMetadata {
+    private final @NotNull String groupId;
+    private final @NotNull String artifactId;
+    private final @NotNull String version;
+    private final @Nullable String classifier;
+    private final @Nullable String extension;
+
+    /**
+     * The sha-1 hash of the artifact, if resolved.
+     *
+     * @see #resolveHash(URL)
+     */
+    private @Nullable String artifactHash;
 
     public ArtifactMetadata(@NotNull String groupId, @NotNull String artifactId, @NotNull String version) {
         this(groupId, artifactId, version, null, null);
@@ -44,7 +51,7 @@ public class ArtifactMetadata {
         if (!url.endsWith("/"))
             url = url + "/";
         url += getMavenPath();
-        url += ".sha256";
+        url += ".sha1";
 
         this.artifactHash = readUrl(url);
     }
@@ -74,7 +81,7 @@ public class ArtifactMetadata {
     }
 
     private static String readUrl(String targetUrl) throws IOException {
-        try (Scanner scanner = new Scanner(new URL(targetUrl).openStream(), StandardCharsets.UTF_8)) {
+        try (Scanner scanner = new Scanner(new URL(targetUrl).openStream(), StandardCharsets.UTF_8.toString())) {
             scanner.useDelimiter("\\A");
             return scanner.hasNext() ? scanner.next() : "";
         }

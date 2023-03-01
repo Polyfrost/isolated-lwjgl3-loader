@@ -2,15 +2,18 @@ package cc.polyfrost.lwjgl.bootstrap;
 
 import cc.polyfrost.lwjgl.bootstrap.metadata.ArtifactMetadata;
 import cc.polyfrost.lwjgl.bootstrap.metadata.PlatformMetadata;
+import cc.polyfrost.polyio.api.Downloader;
+import cc.polyfrost.polyio.api.Store;
+import cc.polyfrost.polyio.download.PolyDownloader;
+import cc.polyfrost.polyio.store.FastHashSchema;
+import cc.polyfrost.polyio.util.PolyHashing;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -39,6 +42,10 @@ enum Lwjgl3Downloader {
             new String[] {"nanovg", "tinyfd", "stb"};
 
     /**
+     * The downloader instance.
+     */
+    private final Downloader downloader;
+    /**
      * The maven repository URL from which to fetch LWJGL3.
      */
     private final URL mavenRepository;
@@ -49,6 +56,11 @@ enum Lwjgl3Downloader {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+        Store downloadStore = Lwjgl3Bootstrap.INSTANCE.getStore().getSubStore(
+                "download-cache",
+                new FastHashSchema(PolyHashing.MD5)
+        );
+        this.downloader = new PolyDownloader(downloadStore);
     }
 
     /**
@@ -74,7 +86,6 @@ enum Lwjgl3Downloader {
             artifactMetadata.resolveHash(mavenRepository);
         }
 
-        Path downloadDir = getDownloadDir();
 
 
         return null;
@@ -91,7 +102,7 @@ enum Lwjgl3Downloader {
     ) {
         List<ArtifactMetadata> artifacts = new ArrayList<>();
 
-        if (platformMeta.requiresSystemPlatform) {
+        if (platformMeta.isRequiresSystemPlatform()) {
             artifacts.addAll(lwjglArtifacts(LWJGL_SYSTEM_MODULE, platformMeta));
         }
         for (String module : LWJGL_MODULES) {
@@ -109,26 +120,14 @@ enum Lwjgl3Downloader {
                 new ArtifactMetadata(
                         "org.lwjgl",
                         moduleName,
-                        platformMeta.lwjglVersion
+                        platformMeta.getLwjglVersion()
                 ),
                 new ArtifactMetadata(
                         "org.lwjgl",
                         moduleName,
-                        platformMeta.lwjglVersion,
-                        platformMeta.lwjglNativeClassifier
+                        platformMeta.getLwjglVersion(),
+                        platformMeta.getLwjglNativeClassifier()
                 )
         );
-    }
-
-    private Path getDownloadDir() throws IOException {
-        Path temp = Files.createTempDirectory("lwjgl-bootstrap");
-        if (!Files.exists(downloadDir)) {
-            try {
-                Files.createDirectories(downloadDir);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return downloadDir;
     }
 }

@@ -3,6 +3,7 @@ package cc.polyfrost.lwjgl.bootstrap.metadata;
 import fr.stardustenterprises.plat4k.EnumArchitecture;
 import fr.stardustenterprises.plat4k.EnumOperatingSystem;
 import fr.stardustenterprises.plat4k.Platform;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -13,19 +14,13 @@ import java.util.Map;
  * @author xtrm
  * @since 0.0.1
  */
-public final class PlatformMetadata {
+public final @Data class PlatformMetadata {
     private static final Map<Integer, @Nullable String> LWJGL_VERSION_MAP = new HashMap<>();
     private static final int LEGACY_MINECRAFT_VERSION_MAX = 11202;
 
-    public final @NotNull String lwjglVersion;
-    public final @NotNull String lwjglNativeClassifier;
-    public final boolean requiresSystemPlatform;
-
-    private PlatformMetadata(@NotNull String lwjglVersion, @NotNull String lwjglNativeClassifier, boolean requiresSystemPlatform) {
-        this.lwjglVersion = lwjglVersion;
-        this.lwjglNativeClassifier = lwjglNativeClassifier;
-        this.requiresSystemPlatform = requiresSystemPlatform;
-    }
+    private final @NotNull String lwjglVersion;
+    private final @NotNull String lwjglNativeClassifier;
+    private final boolean requiresSystemPlatform;
 
     @NotNull
     public static PlatformMetadata from(int minecraftVersion) {

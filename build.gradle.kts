@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    id("io.freefair.lombok") version "6.6.1"
     `maven-publish`
 }
 
@@ -7,11 +8,20 @@ group = "cc.polyfrost"
 version = "0.0.1-SNAPSHOT"
 
 repositories {
-    maven("https://repo.polyfrost.cc/releases/")
+    maven("https://repo.polyfrost.cc/releases")
+    maven("https://repo.polyfrost.cc/snapshots")
+    maven("https://maven.minecraftforge.net")
 }
 
 dependencies {
     implementation("fr.stardustenterprises", "plat4k", "1.6.3")
+    implementation("cc.polyfrost", "polyio", "0.0.2")
+
+    compileOnly("net.minecraft", "launchwrapper", "1.12")
+    compileOnly("net.fabricmc", "fabric-loader", "0.11.6")
+    compileOnly("org.quiltmc", "quilt-loader", "0.17.11")
+    compileOnly("cpw.mods", "modlauncher", "8.1.3")
+//    compileOnly("cpw.mods", "securejarhandler", "2.1.6")
 
     implementation("org.jetbrains", "annotations", "23.0.0")
     testImplementation("org.junit.jupiter", "junit-jupiter-engine", "5.8.1")
@@ -20,10 +30,21 @@ dependencies {
 java {
     withJavadocJar()
     withSourcesJar()
+
+    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_17
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
+tasks {
+    withType<JavaCompile> {
+        options.encoding = "UTF-8"
+        options.compilerArgs = listOf(
+            "--release", "8",
+        )
+    }
+    withType<Test> {
+        useJUnitPlatform()
+    }
 }
 
 configure<PublishingExtension> {
