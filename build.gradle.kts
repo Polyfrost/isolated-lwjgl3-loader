@@ -31,17 +31,16 @@ java {
     withJavadocJar()
     withSourcesJar()
 
-    targetCompatibility = JavaVersion.VERSION_17
-    sourceCompatibility = JavaVersion.VERSION_17
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }
 
 tasks {
     withType<JavaCompile> {
         options.encoding = "UTF-8"
-        options.compilerArgs = listOf(
-            "--release", "8",
-        )
     }
+
     withType<Test> {
         useJUnitPlatform()
     }
