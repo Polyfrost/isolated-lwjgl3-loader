@@ -9,6 +9,6 @@ public class DownloaderTest {
     @SneakyThrows
     @Test
     public void testDownload() {
-//        Lwjgl3Downloader.INSTANCE.ensureDownloaded(11605);
+        Lwjgl3Downloader.INSTANCE.ensureDownloaded(11605);
     }
 }
