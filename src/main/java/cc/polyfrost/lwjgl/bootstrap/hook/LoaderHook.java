@@ -1,10 +1,13 @@
 package cc.polyfrost.lwjgl.bootstrap.hook;
 
-import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.function.Consumer;
 
 /**
  * @author xtrm
@@ -14,22 +17,7 @@ public interface LoaderHook {
 
     void addURL(@NotNull URL url);
 
-    default boolean canEval(ThrowingSupplier<Object> supplier) {
-        try {
-            return Objects.nonNull(supplier.get());
-        } catch (LinkageError | NullPointerException | ClassNotFoundException e) {
-            return false;
-        } catch (Throwable e) {
-            LogManager.getLogger("LWJGLBootstrap")
-                    .error("Error while evaluating loader hook", e);
-            return false;
-        }
-    }
-
-    @FunctionalInterface
-    interface ThrowingSupplier<T> {
-        T get() throws Throwable;
-    }
+    void provideClassloader(@NotNull Consumer<ClassLoader> consumer);
 
     class All {
         private static final ServiceLoader<LoaderHook> serviceLoader =
@@ -43,11 +31,16 @@ public interface LoaderHook {
             // iterator to list
             List<LoaderHook> list = new ArrayList<>();
             iterator.forEachRemaining(list::add);
+            list.removeIf(hook -> !hook.canApply());
 
-            return list.stream()
-                    .filter(LoaderHook::canApply)
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("No loader hook found"));
+            if (list.size() != 1) {
+                list.forEach(System.err::println);
+                throw new RuntimeException("No singular loader hook found");
+            }
+
+            System.out.println("Found loader hook: " + list.get(0).getClass().getName());
+
+            return list.get(0);
         }
     }
 }

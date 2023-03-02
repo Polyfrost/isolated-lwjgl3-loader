@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "cc.polyfrost"
-version = "0.0.1-SNAPSHOT"
+version = "0.0.7"
 
 repositories {
     maven("https://repo.polyfrost.cc/releases")
@@ -15,8 +15,9 @@ repositories {
 
 dependencies {
     implementation("fr.stardustenterprises", "plat4k", "1.6.3")
-    implementation("cc.polyfrost", "polyio", "0.0.2")
+    implementation("cc.polyfrost", "polyio", "0.0.6")
 
+    compileOnly("org.lwjgl", "lwjgl", "3.2.3")
     compileOnly("net.minecraft", "launchwrapper", "1.12")
     compileOnly("net.fabricmc", "fabric-loader", "0.11.6")
     compileOnly("org.quiltmc", "quilt-loader", "0.17.11")

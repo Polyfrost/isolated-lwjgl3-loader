@@ -13,12 +13,13 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
  * @author xtrm
  */
-@SuppressWarnings({"unchecked", "JavaReflectionMemberAccess"})
+@SuppressWarnings({"unchecked"})
 public class ModLauncherHook implements LoaderHook {
     private static DelegateClassLoader delegateClassLoader;
     private static final AtomicBoolean hooked = new AtomicBoolean(false);
@@ -65,12 +66,22 @@ public class ModLauncherHook implements LoaderHook {
 
     @Override
     public boolean canApply() {
-        return canEval(() -> Launcher.INSTANCE);
+        try {
+            Class.forName("cpw.mods.modlauncher.Launcher");
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
     }
 
     @Override
     public void addURL(@NotNull URL url) {
         delegateClassLoader.addURL(url);
+    }
+
+    @Override
+    public void provideClassloader(@NotNull Consumer<ClassLoader> consumer) {
+        consumer.accept(delegateClassLoader);
     }
 
     @SneakyThrows
@@ -118,20 +129,6 @@ public class ModLauncherHook implements LoaderHook {
         ClassLoader fallback = (ClassLoader) fallbackField.get(classLoader);
         delegateClassLoader = new DelegateClassLoader(fallback);
         fallbackField.set(classLoader, delegateClassLoader);
-
-//        Field configField = mcl.getDeclaredField("configuration");
-//        configField.setAccessible(true);
-//
-//        System.out.println("Config: " + configField.get(classLoader));
-//
-//        Configuration.resolveAndBind()
-//
-//        IModuleLayerManager mlm = Launcher.INSTANCE.findLayerManager()
-//                .orElseThrow(RuntimeException::new);
-//        ModuleLayerHandler mlh = (ModuleLayerHandler) mlm;
-//        Field completedLayersField = mlh.getClass().getDeclaredField("completedLayers");
-//        completedLayersField.setAccessible(true);
-
     }
 }
 

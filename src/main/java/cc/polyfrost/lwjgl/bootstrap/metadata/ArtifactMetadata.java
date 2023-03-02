@@ -1,6 +1,8 @@
 package cc.polyfrost.lwjgl.bootstrap.metadata;
 
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +26,9 @@ public final @Data class ArtifactMetadata {
      * The sha-1 hash of the artifact, if resolved.
      *
      * @see #resolveHash(URL)
+     * @return the sha-1 hash of the artifact, if resolved.
      */
+    @Setter(AccessLevel.NONE)
     private @Nullable String artifactHash;
 
     public ArtifactMetadata(@NotNull String groupId, @NotNull String artifactId, @NotNull String version) {

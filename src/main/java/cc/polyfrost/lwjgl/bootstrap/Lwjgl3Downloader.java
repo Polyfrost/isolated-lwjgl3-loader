@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * @author xtrm
@@ -39,12 +41,13 @@ enum Lwjgl3Downloader {
             "lwjgl-%s";
     private static final String LWJGL_SYSTEM_MODULE = "lwjgl";
     private static final String[] LWJGL_MODULES =
-            new String[] {"nanovg", "tinyfd", "stb"};
+            new String[]{"nanovg", "tinyfd", "stb"};
 
     /**
      * The downloader instance.
      */
     private final Downloader downloader;
+    private final Store librariesStore;
     /**
      * The maven repository URL from which to fetch LWJGL3.
      */
@@ -57,10 +60,12 @@ enum Lwjgl3Downloader {
             throw new RuntimeException(e);
         }
         Store downloadStore = Lwjgl3Bootstrap.INSTANCE.getStore().getSubStore(
-                "download-cache",
+                ".cache",
                 new FastHashSchema(PolyHashing.MD5)
         );
         this.downloader = new PolyDownloader(downloadStore);
+        this.librariesStore = Lwjgl3Bootstrap.INSTANCE.getStore()
+                .getSubStore("libraries", Store.ObjectSchema.MAVEN);
     }
 
     /**
@@ -71,7 +76,7 @@ enum Lwjgl3Downloader {
      * unnecessary downloads.
      *
      * @param gameVer The Minecraft version in context, in padded
-     *                         integer form. (ex. 1.12.2 -> 11202)
+     *                integer form. (ex. 1.12.2 -> 11202)
      * @return The path to the downloaded jar(s).
      * @throws IOException If an I/O error occurs.
      */
@@ -82,13 +87,35 @@ enum Lwjgl3Downloader {
 
         List<ArtifactMetadata> remoteMetadata = Lwjgl3Downloader.INSTANCE
                 .requiredFor(platformMetadata);
+        List<Downloader.Download<URL>> downloads = new ArrayList<>();
         for (ArtifactMetadata artifactMetadata : remoteMetadata) {
             artifactMetadata.resolveHash(mavenRepository);
+
+            URL url = new URL(mavenRepository, artifactMetadata.getMavenPath());
+            downloads.add(
+                    downloader.download(
+                            url,
+                            librariesStore.getObject(
+                                    artifactMetadata.getArtifactDeclaration()
+                            ),
+                            Downloader.HashProvider.of(
+                                    artifactMetadata.getArtifactHash(),
+                                    "SHA-1"
+                            ),
+                            Downloader.DownloadCallback.NOOP
+                    )
+            );
         }
 
-
-
-        return null;
+        return downloads.stream()
+                .map(it -> {
+                    try {
+                        return it.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
     }
 
     /**

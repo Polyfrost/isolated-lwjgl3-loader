@@ -50,6 +50,7 @@ sourceSets {
 repositories {
     mavenLocal()
     maven("https://repo.polyfrost.cc/releases")
+    maven("https://repo.polyfrost.cc/snapshots")
 }
 
 dependencies {
@@ -83,15 +84,10 @@ dependencies {
         )
     }
     modImplementation("cc.polyfrost:universalcraft-$platform:246")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:2.14.1")
 
-    // TEMP
-
-    arrayOf(
-        "org.lwjgl:lwjgl-nanovg:3.2.2",
-    ).forEach {
-        implementation(it) { isTransitive = false }
-        implementation("$it:natives-linux") { isTransitive = false }
-    }
+    implementation("cc.polyfrost", "lwjgl3-bootstrap", "0.0.7")
+    compileOnly("org.lwjgl:lwjgl-nanovg:3.2.2")
 }
 
 tasks {
