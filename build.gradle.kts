@@ -5,17 +5,16 @@ plugins {
 }
 
 group = "cc.polyfrost"
-version = "0.0.7"
+version = "0.0.8"
 
 repositories {
     maven("https://repo.polyfrost.cc/releases")
-    maven("https://repo.polyfrost.cc/snapshots")
     maven("https://maven.minecraftforge.net")
 }
 
 dependencies {
     implementation("fr.stardustenterprises", "plat4k", "1.6.3")
-    implementation("cc.polyfrost", "polyio", "0.0.6")
+    implementation("cc.polyfrost", "polyio", "0.0.7")
 
     compileOnly("org.lwjgl", "lwjgl", "3.2.3")
     compileOnly("net.minecraft", "launchwrapper", "1.12")
@@ -81,20 +80,19 @@ configure<PublishingExtension> {
 
     repositories {
         maven {
-            name = "releases"
-            setUrl("https://repo.polyfrost.cc/releases")
+            url = uri("https://repo.polyfrost.cc/releases")
+            name = "polyReleases"
             credentials(PasswordCredentials::class)
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
         }
         maven {
-            name = "snapshots"
-            setUrl("https://repo.polyfrost.cc/snapshots")
+            url = uri("https://repo.polyfrost.cc/snapshots")
+            name = "polySnapshots"
             credentials(PasswordCredentials::class)
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
+        }
+        maven {
+            url = uri("https://repo.polyfrost.cc/private")
+            name = "polyPrivate"
+            credentials(PasswordCredentials::class)
         }
     }
 }
