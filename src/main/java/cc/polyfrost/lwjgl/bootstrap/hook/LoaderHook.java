@@ -38,8 +38,6 @@ public interface LoaderHook {
                 throw new RuntimeException("No singular loader hook found");
             }
 
-            System.out.println("Found loader hook: " + list.get(0).getClass().getName());
-
             return list.get(0);
         }
     }

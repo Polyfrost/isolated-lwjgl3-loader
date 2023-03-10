@@ -1,6 +1,7 @@
 package cc.polyfrost.lwjgl.bootstrap;
 
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j2;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -22,6 +23,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author xtrm
  */
+@Log4j2
 public enum Lwjgl3PreProcessor {
     INSTANCE;
 
@@ -53,7 +55,7 @@ public enum Lwjgl3PreProcessor {
 
     @SneakyThrows
     public Path process(Path path) {
-        System.out.println("Processing " + path);
+        log.trace("Processing " + path);
         File file = path.toFile();
         String filename = file.getName();
         String name = filename.lastIndexOf('.') > 0
@@ -153,7 +155,7 @@ public enum Lwjgl3PreProcessor {
 
     private void transformGLConfig(ClassNode node) {
         if (node.name.equalsIgnoreCase("org/lwjgl/nanovg/NanoVGGLConfig")) {
-            System.out.println(">>> Transforming " + node.name);
+            log.trace("Transforming " + node.name);
             for (MethodNode method : node.methods) {
                 if (method.name.equals("configGL")) {
                     InsnList list = new InsnList();

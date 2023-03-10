@@ -38,7 +38,7 @@ loom {
 }
 
 val shade: Configuration by configurations.creating {
-    configurations.implementation.get().extendsFrom(this)
+    configurations.modImplementation.get().extendsFrom(this)
 }
 
 sourceSets {
@@ -48,7 +48,6 @@ sourceSets {
 }
 
 repositories {
-    mavenLocal()
     maven("https://repo.polyfrost.cc/releases")
     maven("https://repo.polyfrost.cc/snapshots")
 }
@@ -83,10 +82,13 @@ dependencies {
             }
         )
     }
-    modImplementation("cc.polyfrost:universalcraft-$platform:246")
-    runtimeOnly("org.apache.logging.log4j:log4j-core:2.14.1")
+    shade("cc.polyfrost:universalcraft-$platform:246")
+    runtimeOnly("org.apache.logging.log4j:log4j-core:2.0-beta9")
 
-    implementation("cc.polyfrost", "lwjgl3-bootstrap", "0.0.7")
+    shade("cc.polyfrost", "lwjgl3-bootstrap", "0.0.9") {
+        exclude("net.java.dev.jna", "jna")
+        exclude("org.apache.logging.log4j")
+    }
     compileOnly("org.lwjgl:lwjgl-nanovg:3.2.2")
 }
 

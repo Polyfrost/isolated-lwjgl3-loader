@@ -7,6 +7,7 @@ import cc.polyfrost.polyio.api.Store;
 import cc.polyfrost.polyio.download.PolyDownloader;
 import cc.polyfrost.polyio.store.FastHashSchema;
 import cc.polyfrost.polyio.util.PolyHashing;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
  * @since 0.0.1
  */
 @VisibleForTesting
+@Log4j2
 enum Lwjgl3Downloader {
     /**
      * The singleton instance.
@@ -83,7 +85,10 @@ enum Lwjgl3Downloader {
     public @NotNull List<Path> ensureDownloaded(
             int gameVer
     ) throws IOException {
+        log.trace("Ensuring LWJGL3 is downloaded for game version {}", gameVer);
+
         PlatformMetadata platformMetadata = PlatformMetadata.from(gameVer);
+        log.trace("Platform metadata: {}", platformMetadata);
 
         List<ArtifactMetadata> remoteMetadata = Lwjgl3Downloader.INSTANCE
                 .requiredFor(platformMetadata);
@@ -92,19 +97,17 @@ enum Lwjgl3Downloader {
             artifactMetadata.resolveHash(mavenRepository);
 
             URL url = new URL(mavenRepository, artifactMetadata.getMavenPath());
-            downloads.add(
-                    downloader.download(
-                            url,
-                            librariesStore.getObject(
-                                    artifactMetadata.getArtifactDeclaration()
-                            ),
-                            Downloader.HashProvider.of(
-                                    artifactMetadata.getArtifactHash(),
-                                    "SHA-1"
-                            ),
-                            Downloader.DownloadCallback.NOOP
-                    )
-            );
+            downloads.add(downloader.download(
+                    url,
+                    librariesStore.getObject(
+                            artifactMetadata.getArtifactDeclaration()
+                    ),
+                    Downloader.HashProvider.of(
+                            artifactMetadata.getArtifactHash(),
+                            "SHA-1"
+                    ),
+                    Downloader.DownloadCallback.NOOP
+            ));
         }
 
         return downloads.stream()
@@ -112,7 +115,10 @@ enum Lwjgl3Downloader {
                     try {
                         return it.get();
                     } catch (InterruptedException | ExecutionException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException(String.format(
+                                "Failed to download %s",
+                                it.getSource()
+                        ), e);
                     }
                 })
                 .collect(Collectors.toList());
@@ -133,7 +139,10 @@ enum Lwjgl3Downloader {
             artifacts.addAll(lwjglArtifacts(LWJGL_SYSTEM_MODULE, platformMeta));
         }
         for (String module : LWJGL_MODULES) {
-            artifacts.addAll(lwjglArtifacts(String.format(LWJGL3_ARTIFACT_ID, module), platformMeta));
+            artifacts.addAll(lwjglArtifacts(
+                    String.format(LWJGL3_ARTIFACT_ID, module),
+                    platformMeta
+            ));
         }
 
         return artifacts;

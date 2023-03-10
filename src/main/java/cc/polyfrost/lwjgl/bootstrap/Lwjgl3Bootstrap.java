@@ -3,6 +3,7 @@ package cc.polyfrost.lwjgl.bootstrap;
 import cc.polyfrost.lwjgl.bootstrap.hook.LoaderHook;
 import cc.polyfrost.polyio.api.Store;
 import cc.polyfrost.polyio.store.PolyStore;
+import lombok.extern.log4j.Log4j2;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author xtrm
  * @since 0.0.1
  */
+@Log4j2
 public enum Lwjgl3Bootstrap {
     /**
      * The singleton instance.
@@ -41,7 +43,6 @@ public enum Lwjgl3Bootstrap {
     public void initialize(int minecraftVersion) throws IOException {
         // Download the LWJGL3 artifacts
         // Patch the LWJGL3 artifacts if needed
-
         List<Path> jars =
                 Lwjgl3Downloader.INSTANCE.ensureDownloaded(minecraftVersion);
         URL[] urls = jars.stream()
@@ -57,7 +58,7 @@ public enum Lwjgl3Bootstrap {
         // Add the jars to the classpath
         LoaderHook loaderHook = LoaderHook.All.findAppropriate();
         for (URL url : urls) {
-            System.out.println("Adding " + url + " to classpath.");
+            log.trace("Adding {} to classpath.", url);
             loaderHook.addURL(url);
         }
 

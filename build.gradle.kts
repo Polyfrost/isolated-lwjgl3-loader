@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "cc.polyfrost"
-version = "0.0.8"
+version = "0.0.9"
 
 repositories {
     maven("https://repo.polyfrost.cc/releases")
@@ -14,7 +14,7 @@ repositories {
 
 dependencies {
     implementation("fr.stardustenterprises", "plat4k", "1.6.3")
-    implementation("cc.polyfrost", "polyio", "0.0.7")
+    implementation("cc.polyfrost", "polyio", "0.0.8")
 
     compileOnly("org.lwjgl", "lwjgl", "3.2.3")
     compileOnly("net.minecraft", "launchwrapper", "1.12")

@@ -28,7 +28,6 @@ public class LaunchWrapperHook implements LoaderHook {
             throw new RuntimeException("Failed to clear LaunchClassLoader exceptions", e);
         } catch (Throwable ignored) {
         }
-        System.out.println("Cleaned.");
     }
 
     @Override
