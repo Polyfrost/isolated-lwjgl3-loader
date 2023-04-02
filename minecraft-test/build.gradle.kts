@@ -50,6 +50,7 @@ sourceSets {
 repositories {
     maven("https://repo.polyfrost.cc/releases")
     maven("https://repo.polyfrost.cc/snapshots")
+    mavenLocal()
 }
 
 dependencies {
@@ -85,7 +86,7 @@ dependencies {
     shade("cc.polyfrost:universalcraft-$platform:246")
     runtimeOnly("org.apache.logging.log4j:log4j-core:2.0-beta9")
 
-    shade("cc.polyfrost", "lwjgl3-bootstrap", "0.0.9") {
+    shade("cc.polyfrost", "lwjgl3-bootstrap", "0.0.10") {
         exclude("net.java.dev.jna", "jna")
         exclude("org.apache.logging.log4j")
     }

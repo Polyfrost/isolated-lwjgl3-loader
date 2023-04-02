@@ -2,3 +2,4 @@ cc.polyfrost.lwjgl.bootstrap.hook.impl.FabricLoaderHook
 cc.polyfrost.lwjgl.bootstrap.hook.impl.LaunchWrapperHook
 cc.polyfrost.lwjgl.bootstrap.hook.impl.ModLauncherHook
 cc.polyfrost.lwjgl.bootstrap.hook.impl.QuiltLoaderHook
+cc.polyfrost.lwjgl.bootstrap.hook.impl.SpruceLoaderHook

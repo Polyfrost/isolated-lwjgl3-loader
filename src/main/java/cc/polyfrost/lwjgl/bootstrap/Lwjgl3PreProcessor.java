@@ -1,5 +1,6 @@
 package cc.polyfrost.lwjgl.bootstrap;
 
+import cc.polyfrost.polyio.util.PolyHashing;
 import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j2;
 import org.objectweb.asm.ClassReader;
@@ -64,7 +65,8 @@ public enum Lwjgl3PreProcessor {
         String ext = filename.lastIndexOf('.') > 0
                 ? filename.substring(filename.lastIndexOf('.'))
                 : "";
-        Path target = path.getParent().resolve(name + "-patched" + ext);
+        Path target = path.getParent().resolve(name + "-patched.tmp" + ext);
+        Path targetFinal = path.getParent().resolve(name + "-patched" + ext);
         if (Files.exists(target)) {
             try {
                 Files.delete(target);
@@ -89,7 +91,6 @@ public enum Lwjgl3PreProcessor {
                         !entryName.startsWith("META-INF/") &&
                         !entryName.contains("actually3") &&
                         !entryName.endsWith("-info.class")) {
-//                    System.out.println("Transforming: " + entryName);
 
                     ClassReader classReader = new ClassReader(zipFile.getInputStream(entry));
                     ClassNode dummyNode = new ClassNode();
@@ -135,11 +136,37 @@ public enum Lwjgl3PreProcessor {
             throw new RuntimeException(e);
         }
 
+        // if the target already exists, compare the two, if they're not the same,
+        // delete the old one and move the new one to the old one
+        if (Files.exists(targetFinal)) {
+            String currentHash = PolyHashing.hash(target, PolyHashing.MD5);
+            String oldHash = PolyHashing.hash(targetFinal, PolyHashing.MD5);
+            if (!currentHash.equals(oldHash)) {
+                try {
+                    Files.delete(targetFinal);
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Couldn't delete target file " + targetFinal,
+                            e
+                    );
+                }
+            }
+        }
+
+        try {
+            Files.move(target, targetFinal);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Couldn't move target file " + target + " to " + targetFinal,
+                    e
+            );
+        }
+
         if (modified[0]) {
-            return target;
+            return targetFinal;
         }
         try {
-            Files.delete(target);
+            Files.delete(targetFinal);
         } catch (IOException ignored) {
         }
         return path;

@@ -1,15 +1,13 @@
 package cc.polyfrost.lwjgl3tests;
 
-import cc.polyfrost.oneconfig.libs.universal.UGraphics;
-import cc.polyfrost.oneconfig.libs.universal.UMinecraft;
-import cc.polyfrost.oneconfig.libs.universal.UResolution;
-import cc.polyfrost.oneconfig.libs.universal.UScreen;
+import cc.polyfrost.oneconfig.libs.universal.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NanoVG;
 import org.lwjgl.nanovg.NanoVGGL2;
 import org.lwjgl.nanovg.NanoVGGL3;
+import org.lwjgl.opengl.GL11;
 //#if MODERN && FORGE
 //$$ import com.mojang.blaze3d.matrix.MatrixStack;
 //#elseif MODERN && FABRIC
@@ -24,6 +22,22 @@ public class Renderer {
     private static long ctx = -1;
 
     public static void render(
+            //#if MODERN
+            //$$ MatrixStack matrixStack
+            //#endif
+    ) {
+        if (UKeyboard.isKeyDown(UKeyboard.KEY_LSHIFT)) {
+            return;
+        }
+
+        render0(
+                //#if MODERN
+                //$$ matrixStack
+                //#endif
+        );
+    }
+
+    public static void render0(
             //#if MODERN
             //$$ MatrixStack matrixStack
             //#endif
