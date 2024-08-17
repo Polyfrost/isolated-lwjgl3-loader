@@ -1,4 +1,4 @@
-package cc.polyfrost.lwjgl.bootstrap;
+package dev.deftu.lwjgl.bootstrap;
 
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.FunctionProvider;
@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 
 public class Lwjgl2FunctionProvider implements FunctionProvider {
+
     private static final Class<?> GL_CONTEXT;
     private final Method getFunctionAddress;
 
@@ -30,10 +31,7 @@ public class Lwjgl2FunctionProvider implements FunctionProvider {
     @Override
     public long getFunctionAddress(CharSequence functionName) {
         try {
-            return (long) getFunctionAddress.invoke(
-                    null,
-                    functionName.toString()
-            );
+            return (long) getFunctionAddress.invoke(null, functionName.toString());
         } catch (ReflectiveOperationException exception) {
             throw new RuntimeException(exception);
         }
@@ -41,8 +39,7 @@ public class Lwjgl2FunctionProvider implements FunctionProvider {
 
     @Override
     public long getFunctionAddress(@NotNull ByteBuffer byteBuffer) {
-        throw new UnsupportedOperationException(
-                "LWJGL 2 does not support this method"
-        );
+        throw new UnsupportedOperationException("LWJGL 2 does not support this method");
     }
+
 }

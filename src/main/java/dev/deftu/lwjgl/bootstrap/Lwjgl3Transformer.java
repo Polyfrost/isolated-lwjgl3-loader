@@ -1,8 +1,6 @@
-package cc.polyfrost.lwjgl.bootstrap;
+package dev.deftu.lwjgl.bootstrap;
 
 import cc.polyfrost.polyio.util.PolyHashing;
-import lombok.SneakyThrows;
-import lombok.extern.log4j.Log4j2;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -21,42 +19,21 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-/**
- * @author xtrm
- */
-@Log4j2
-public enum Lwjgl3PreProcessor {
-    INSTANCE;
+@SuppressWarnings("unchecked")
+public class Lwjgl3Transformer {
 
-    private static final String LWJGL2_FUNCTION_PROVIDER_FQDN =
-            "cc/polyfrost/lwjgl/bootstrap/Lwjgl2FunctionProvider";
-    private final Map<String, String> remappingMap = new HashMap<>();
-    private final Class<? extends ClassVisitor> remapperAdapter;
+    private static final String LWJGL2_FUNCTION_PROVIDER_FQDN = "dev/deftu/lwjgl/bootstrap/Lwjgl2FunctionProvider";
+    private static final Map<String, String> remappingMap = new HashMap<>();
+    private static final Class<? extends ClassVisitor> remapperAdapter;
 
-    @SuppressWarnings("unchecked")
-    @SneakyThrows
-    Lwjgl3PreProcessor() {
-        remappingMap.put("org/lwjgl/BufferUtils", "org/lwjgl/actually3/BufferUtils");
-        remappingMap.put("org/lwjgl/PointerBuffer", "org/lwjgl/actually3/PointerBuffer");
-        remappingMap.put("org/lwjgl/CLongBuffer", "org/lwjgl/actually3/CLongBuffer");
-
-        boolean asm5 = false;
-        try {
-            Class.forName("net.minecraftforge.common.ForgeVersion");
-            asm5 = true;
-        } catch (Throwable ignored) {
-        }
-
-        if (asm5) {
-            remapperAdapter = (Class<? extends ClassVisitor>) Class.forName("org.objectweb.asm.commons.RemappingClassAdapter");
-        } else {
-            remapperAdapter = (Class<? extends ClassVisitor>) Class.forName("org.objectweb.asm.commons.ClassRemapper");
-        }
+    private Lwjgl3Transformer() {
     }
 
-    @SneakyThrows
-    public Path process(Path path) {
-        log.trace("Processing " + path);
+    public static Path maybeTransform(int paddedMinecraftVersion, Path path) {
+        if (paddedMinecraftVersion > 1_12_02) {
+            return path;
+        }
+
         File file = path.toFile();
         String filename = file.getName();
         String name = filename.lastIndexOf('.') > 0
@@ -132,24 +109,31 @@ public enum Lwjgl3PreProcessor {
                 zos.write(buffer);
                 zos.closeEntry();
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
         // if the target already exists, compare the two, if they're not the same,
         // delete the old one and move the new one to the old one
         if (Files.exists(targetFinal)) {
-            String currentHash = PolyHashing.hash(target, PolyHashing.MD5);
-            String oldHash = PolyHashing.hash(targetFinal, PolyHashing.MD5);
-            if (!currentHash.equals(oldHash)) {
-                try {
-                    Files.delete(targetFinal);
-                } catch (IOException e) {
-                    throw new RuntimeException(
-                            "Couldn't delete target file " + targetFinal,
-                            e
-                    );
+            try {
+                String currentHash = PolyHashing.hash(target, PolyHashing.MD5);
+                String oldHash = PolyHashing.hash(targetFinal, PolyHashing.MD5);
+                if (!currentHash.equals(oldHash)) {
+                    try {
+                        Files.delete(targetFinal);
+                    } catch (IOException e) {
+                        throw new RuntimeException(
+                                "Couldn't delete target file " + targetFinal,
+                                e
+                        );
+                    }
                 }
+            } catch (IOException e) {
+                throw new RuntimeException(
+                        "Couldn't hash target file " + target,
+                        e
+                );
             }
         }
 
@@ -165,14 +149,16 @@ public enum Lwjgl3PreProcessor {
         if (modified[0]) {
             return targetFinal;
         }
+
         try {
             Files.delete(targetFinal);
         } catch (IOException ignored) {
         }
+
         return path;
     }
 
-    private void transferTo(InputStream in, OutputStream out) throws IOException {
+    private static void transferTo(InputStream in, OutputStream out) throws IOException {
         byte[] buffer = new byte[1024];
         int read;
         while ((read = in.read(buffer, 0, 1024)) >= 0) {
@@ -180,9 +166,8 @@ public enum Lwjgl3PreProcessor {
         }
     }
 
-    private void transformGLConfig(ClassNode node) {
+    private static void transformGLConfig(ClassNode node) {
         if (node.name.equalsIgnoreCase("org/lwjgl/nanovg/NanoVGGLConfig")) {
-            log.trace("Transforming " + node.name);
             for (MethodNode method : node.methods) {
                 if (method.name.equals("configGL")) {
                     InsnList list = new InsnList();
@@ -212,4 +197,28 @@ public enum Lwjgl3PreProcessor {
             }
         }
     }
+
+    static {
+        remappingMap.put("org/lwjgl/BufferUtils", "org/lwjgl/actually3/BufferUtils");
+        remappingMap.put("org/lwjgl/PointerBuffer", "org/lwjgl/actually3/PointerBuffer");
+        remappingMap.put("org/lwjgl/CLongBuffer", "org/lwjgl/actually3/CLongBuffer");
+
+        boolean asm5 = false;
+        try {
+            Class.forName("net.minecraftforge.common.ForgeVersion");
+            asm5 = true;
+        } catch (Throwable ignored) {
+        }
+
+        try {
+            if (asm5) {
+                remapperAdapter = (Class<? extends ClassVisitor>) Class.forName("org.objectweb.asm.commons.RemappingClassAdapter");
+            } else {
+                remapperAdapter = (Class<? extends ClassVisitor>) Class.forName("org.objectweb.asm.commons.ClassRemapper");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }

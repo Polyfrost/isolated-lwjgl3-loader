@@ -1,8 +1,5 @@
-package cc.polyfrost.lwjgl.bootstrap.metadata;
+package dev.deftu.lwjgl.bootstrap.metadata;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +12,8 @@ import java.util.Scanner;
  * @author xtrm
  * @since 0.0.1
  */
-public final @Data class ArtifactMetadata {
+public final class ArtifactMetadata {
+
     private final @NotNull String groupId;
     private final @NotNull String artifactId;
     private final @NotNull String version;
@@ -28,7 +26,6 @@ public final @Data class ArtifactMetadata {
      * @see #resolveHash(URL)
      * @return the sha-1 hash of the artifact, if resolved.
      */
-    @Setter(AccessLevel.NONE)
     private @Nullable String artifactHash;
 
     public ArtifactMetadata(@NotNull String groupId, @NotNull String artifactId, @NotNull String version) {
@@ -58,6 +55,11 @@ public final @Data class ArtifactMetadata {
         url += ".sha1";
 
         this.artifactHash = readUrl(url);
+    }
+
+    @Nullable
+    public String getArtifactHash() {
+        return artifactHash;
     }
 
     public @NotNull String getFileName() {
@@ -90,4 +92,5 @@ public final @Data class ArtifactMetadata {
             return scanner.hasNext() ? scanner.next() : "";
         }
     }
+
 }
