@@ -19,7 +19,7 @@ repositories {
 
 dependencies {
     implementation("fr.stardustenterprises:plat4k:1.6.3")
-    implementation("cc.polyfrost:polyio:0.0.10")
+    implementation("cc.polyfrost:polyio:0.0.13")
 
     compileOnly("org.lwjgl:lwjgl:3.3.3")
     compileOnly("net.minecraft:launchwrapper:1.12")
