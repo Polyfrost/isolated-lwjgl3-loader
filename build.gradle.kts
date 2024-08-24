@@ -8,9 +8,6 @@ plugins {
     id("dev.deftu.gradle.tools.publishing.maven") version(dgtVersion)
 }
 
-group = "dev.deftu"
-version = "0.0.10"
-
 repositories {
     maven("https://maven.minecraftforge.net/")
     maven("https://libraries.minecraft.net/")
