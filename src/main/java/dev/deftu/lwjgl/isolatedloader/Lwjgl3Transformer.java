@@ -1,10 +1,9 @@
-package dev.deftu.lwjgl.bootstrap;
+package dev.deftu.lwjgl.isolatedloader;
 
 import cc.polyfrost.polyio.util.PolyHashing;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
 
@@ -22,18 +21,19 @@ import java.util.zip.ZipOutputStream;
 @SuppressWarnings("unchecked")
 public class Lwjgl3Transformer {
 
-    private static final String LWJGL2_FUNCTION_PROVIDER_FQDN = "dev/deftu/lwjgl/bootstrap/Lwjgl2FunctionProvider";
     private static final Map<String, String> remappingMap = new HashMap<>();
     private static final Class<? extends ClassVisitor> remapperAdapter;
 
     private Lwjgl3Transformer() {
     }
 
-    public static Path maybeTransform(int paddedMinecraftVersion, Path path) {
-        if (paddedMinecraftVersion > 1_12_02) {
-            return path;
-        }
-
+    /**
+     * Transforms the given JAR file to use the utilities we provide for it's FunctionProvider
+     *
+     * @param path The path to the JAR file
+     * @return The path to the transformed JAR file
+     */
+    public static Path maybeTransform(Path path) {
         File file = path.toFile();
         String filename = file.getName();
         String name = filename.lastIndexOf('.') > 0
@@ -93,11 +93,23 @@ public class Lwjgl3Transformer {
                     ClassNode node = new ClassNode();
                     new ClassReader(tempBuf).accept(node, ClassReader.EXPAND_FRAMES);
 
-                    transformGLConfig(node);
+                    boolean isModified = transformGLConfig(node);
 
                     ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
                     node.accept(writer);
                     buffer = writer.toByteArray();
+
+                    if (isModified && System.getProperty("isolatedlwjgl3loader.debug") != null) {
+                        // Write the class to it's class simple name in the current directory
+                        String className = node.name.replace('/', '.');
+                        try (FileOutputStream fos = new FileOutputStream(className + ".class")) {
+                            byte[] copiedBuffer = new byte[buffer.length];
+                            System.arraycopy(buffer, 0, copiedBuffer, 0, buffer.length);
+
+                            fos.write(copiedBuffer);
+                        }
+                    }
+
                     zos.putNextEntry(new ZipEntry(entryName.replace(dummyNode.name, node.name)));
                 } else {
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -166,36 +178,26 @@ public class Lwjgl3Transformer {
         }
     }
 
-    private static void transformGLConfig(ClassNode node) {
+    private static boolean transformGLConfig(ClassNode node) {
         if (node.name.equalsIgnoreCase("org/lwjgl/nanovg/NanoVGGLConfig")) {
             for (MethodNode method : node.methods) {
                 if (method.name.equals("configGL")) {
-                    InsnList list = new InsnList();
-
-                    list.add(new VarInsnNode(Opcodes.LLOAD, 0));
-                    list.add(new TypeInsnNode(Opcodes.NEW, LWJGL2_FUNCTION_PROVIDER_FQDN));
-                    list.add(new InsnNode(Opcodes.DUP));
-                    list.add(new MethodInsnNode(
-                            Opcodes.INVOKESPECIAL,
-                            LWJGL2_FUNCTION_PROVIDER_FQDN,
-                            "<init>",
-                            "()V",
-                            false
-                    ));
-                    list.add(new MethodInsnNode(
-                            Opcodes.INVOKESTATIC,
-                            "org/lwjgl/nanovg/NanoVGGLConfig",
-                            "config",
-                            "(JLorg/lwjgl/system/FunctionProvider;)V",
-                            false
-                    ));
-                    list.add(new InsnNode(Opcodes.RETURN));
-
-                    method.instructions.clear();
-                    method.instructions.insert(list);
+                    for (AbstractInsnNode insn : method.instructions.toArray()) {
+                        if (insn instanceof LdcInsnNode) {
+                            LdcInsnNode ldc = (LdcInsnNode) insn;
+                            if (ldc.cst.equals("org.lwjgl.opengl.GL")) {
+                                ldc.cst = "dev.deftu.lwjgl.isolatedloader.utils.LwjglFunctionProviderFactory";
+                                break;
+                            }
+                        }
+                    }
                 }
             }
+
+            return true;
         }
+
+        return false;
     }
 
     static {

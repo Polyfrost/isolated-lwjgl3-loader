@@ -1,5 +1,0 @@
-cc.polyfrost.lwjgl.bootstrap.hook.impl.FabricLoaderHook
-dev.deftu.lwjgl.bootstrap.hook.impl.LaunchWrapperHook
-dev.deftu.lwjgl.bootstrap.hook.impl.ModLauncherHook
-dev.deftu.lwjgl.bootstrap.hook.impl.QuiltLoaderHook
-dev.deftu.lwjgl.bootstrap.hook.impl.SpruceLoaderHook

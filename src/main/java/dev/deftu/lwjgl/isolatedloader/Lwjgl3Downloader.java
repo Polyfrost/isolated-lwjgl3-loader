@@ -1,12 +1,12 @@
-package dev.deftu.lwjgl.bootstrap;
+package dev.deftu.lwjgl.isolatedloader;
 
 import cc.polyfrost.polyio.api.Downloader;
 import cc.polyfrost.polyio.api.Store;
 import cc.polyfrost.polyio.download.PolyDownloader;
 import cc.polyfrost.polyio.store.FastHashSchema;
 import cc.polyfrost.polyio.util.PolyHashing;
-import dev.deftu.lwjgl.bootstrap.metadata.ArtifactMetadata;
-import dev.deftu.lwjgl.bootstrap.metadata.PlatformMetadata;
+import dev.deftu.lwjgl.isolatedloader.metadata.ArtifactMetadata;
+import dev.deftu.lwjgl.isolatedloader.metadata.PlatformMetadata;
 
 import java.io.IOException;
 import java.net.URL;
@@ -25,25 +25,42 @@ public class Lwjgl3Downloader {
     private static final String LWJGL3_ARTIFACT_ID = "lwjgl-%s";
     private static final String LWJGL_SYSTEM_MODULE = "lwjgl";
 
-    private static final Downloader downloader;
-    private static final Store libraryStore;
-    private static final URL mavenRepository;
+    private static final Downloader DOWNLOADER;
+    private static final Store LIBRARY_STORE;
+    private static final URL MAVEN_REPOSITORY;
+
+    private static boolean isSystemModuleDownloaded = false;
+    private static final Set<String> downloadedModules = new HashSet<>();
 
     private Lwjgl3Downloader() {
     }
 
-    public static Set<Path> download(int paddedMinecraftVersion, String[] lwjglModules) throws IOException {
-        PlatformMetadata platformMetadata = PlatformMetadata.from(paddedMinecraftVersion);
-        Set<ArtifactMetadata> remoteMetadata = getArtifactsFor(platformMetadata, lwjglModules);
+    /**
+     * Downloads the specified LWJGL modules.
+     *
+     * @param lwjglModules the LWJGL modules to download
+     * @return the paths to the downloaded modules
+     * @throws IOException if an I/O error occurs
+     */
+    public static Set<Path> download(String[] lwjglModules) throws IOException {
+        if (downloadedModules.containsAll(Arrays.asList(lwjglModules))) {
+            return new HashSet<>();
+        }
+
+        String[] newModules = Arrays.stream(lwjglModules)
+                .filter(module -> !downloadedModules.contains(module))
+                .toArray(String[]::new);
+        PlatformMetadata platformMetadata = PlatformMetadata.from();
+        Set<ArtifactMetadata> remoteMetadata = getArtifactsFor(platformMetadata, newModules);
         Set<Downloader.Download<URL>> downloads = new HashSet<>();
 
         for (ArtifactMetadata artifactMetadata : remoteMetadata) {
-            artifactMetadata.resolveHash(mavenRepository);
+            artifactMetadata.resolveHash(MAVEN_REPOSITORY);
 
-            URL url = new URL(mavenRepository, artifactMetadata.getMavenPath());
-            downloads.add(downloader.download(
+            URL url = new URL(MAVEN_REPOSITORY, artifactMetadata.getMavenPath());
+            downloads.add(DOWNLOADER.download(
                     url,
-                    libraryStore.getObject(
+                    LIBRARY_STORE.getObject(
                             artifactMetadata.getArtifactDeclaration()
                     ),
                     Downloader.HashProvider.of(
@@ -54,7 +71,7 @@ public class Lwjgl3Downloader {
             ));
         }
 
-        return downloads.stream()
+        Set<Path> paths = downloads.stream()
                 .map(download -> {
                     try {
                         return download.get();
@@ -66,12 +83,17 @@ public class Lwjgl3Downloader {
                     }
                 })
                 .collect(Collectors.toSet());
+
+        downloadedModules.addAll(Arrays.asList(lwjglModules));
+        return paths;
     }
 
     public static Set<ArtifactMetadata> getArtifactsFor(PlatformMetadata platformMetadata, String[] lwjglModules) {
         Set<ArtifactMetadata> artifacts = new HashSet<>();
-        if (platformMetadata.isRequiresSystemPlatform()) {
+
+        if (!isSystemModuleDownloaded) {
             artifacts.addAll(lwjglArtifacts(LWJGL_SYSTEM_MODULE, platformMetadata));
+            isSystemModuleDownloaded = true;
         }
 
         for (String lwjglModule : lwjglModules) {
@@ -99,14 +121,14 @@ public class Lwjgl3Downloader {
 
     static {
         try {
-            mavenRepository = new URL(MAVEN_CENTRAL_URL);
+            MAVEN_REPOSITORY = new URL(MAVEN_CENTRAL_URL);
         } catch (Throwable t) {
             throw new RuntimeException("Failed to initialize LWJGL3 downloader", t);
         }
 
-        Store downloadStore = Lwjgl3Bootstrap.getStore().getSubStore(".cache", new FastHashSchema(PolyHashing.MD5));
-        downloader = new PolyDownloader(downloadStore);
-        libraryStore = Lwjgl3Bootstrap.getStore().getSubStore("libraries", Store.ObjectSchema.MAVEN);
+        Store downloadStore = Lwjgl3Manager.getStore().getSubStore(".cache", new FastHashSchema(PolyHashing.MD5));
+        DOWNLOADER = new PolyDownloader(downloadStore);
+        LIBRARY_STORE = Lwjgl3Manager.getStore().getSubStore("libraries", Store.ObjectSchema.MAVEN);
     }
 
 }

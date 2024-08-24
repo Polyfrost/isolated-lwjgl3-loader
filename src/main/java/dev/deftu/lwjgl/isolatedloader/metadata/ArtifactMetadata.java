@@ -1,4 +1,4 @@
-package dev.deftu.lwjgl.bootstrap.metadata;
+package dev.deftu.lwjgl.isolatedloader.metadata;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
