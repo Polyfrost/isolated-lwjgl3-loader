@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("dev.deftu:filestream:0.4.0")
+    implementation("dev.deftu:filestream:0.4.1")
 
     compileOnly("org.lwjgl:lwjgl:3.3.3")
     compileOnly("net.minecraft:launchwrapper:1.12")
