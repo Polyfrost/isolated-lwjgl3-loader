@@ -1,6 +1,6 @@
 package dev.deftu.lwjgl.isolatedloader;
 
-import cc.polyfrost.polyio.util.PolyHashing;
+import dev.deftu.filestream.util.HashingHelper;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -129,8 +129,8 @@ public class Lwjgl3Transformer {
         // delete the old one and move the new one to the old one
         if (Files.exists(targetFinal)) {
             try {
-                String currentHash = PolyHashing.hash(target, PolyHashing.MD5);
-                String oldHash = PolyHashing.hash(targetFinal, PolyHashing.MD5);
+                String currentHash = HashingHelper.hash(target, HashingHelper.MD5);
+                String oldHash = HashingHelper.hash(targetFinal, HashingHelper.MD5);
                 if (!currentHash.equals(oldHash)) {
                     try {
                         Files.delete(targetFinal);

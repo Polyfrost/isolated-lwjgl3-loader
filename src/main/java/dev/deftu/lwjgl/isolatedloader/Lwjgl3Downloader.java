@@ -1,10 +1,9 @@
 package dev.deftu.lwjgl.isolatedloader;
 
-import cc.polyfrost.polyio.api.Downloader;
-import cc.polyfrost.polyio.api.Store;
-import cc.polyfrost.polyio.download.PolyDownloader;
-import cc.polyfrost.polyio.store.FastHashSchema;
-import cc.polyfrost.polyio.util.PolyHashing;
+import dev.deftu.filestream.api.Downloader;
+import dev.deftu.filestream.api.Store;
+import dev.deftu.filestream.store.FastHashSchema;
+import dev.deftu.filestream.util.HashingHelper;
 import dev.deftu.lwjgl.isolatedloader.metadata.ArtifactMetadata;
 import dev.deftu.lwjgl.isolatedloader.metadata.PlatformMetadata;
 
@@ -65,7 +64,7 @@ public class Lwjgl3Downloader {
                     ),
                     Downloader.HashProvider.of(
                             artifactMetadata.getArtifactHash(),
-                            "SHA-1"
+                            HashingHelper.SHA1
                     ),
                     Downloader.DownloadCallback.NOOP
             ));
@@ -126,8 +125,8 @@ public class Lwjgl3Downloader {
             throw new RuntimeException("Failed to initialize LWJGL3 downloader", t);
         }
 
-        Store downloadStore = Lwjgl3Manager.getStore().getSubStore(".cache", new FastHashSchema(PolyHashing.MD5));
-        DOWNLOADER = new PolyDownloader(downloadStore);
+        Store downloadStore = Lwjgl3Manager.getStore().getSubStore(".cache", new FastHashSchema(HashingHelper.MD5));
+        DOWNLOADER = Downloader.create(downloadStore);
         LIBRARY_STORE = Lwjgl3Manager.getStore().getSubStore("libraries", Store.ObjectSchema.MAVEN);
     }
 
