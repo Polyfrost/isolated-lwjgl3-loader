@@ -1,8 +1,7 @@
 package dev.deftu.lwjgl.isolatedloader.metadata;
 
-import fr.stardustenterprises.plat4k.EnumArchitecture;
-import fr.stardustenterprises.plat4k.EnumOperatingSystem;
-import fr.stardustenterprises.plat4k.Platform;
+import dev.deftu.filestream.util.Architecture;
+import dev.deftu.filestream.util.OperatingSystem;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -33,13 +32,12 @@ public final class PlatformMetadata {
 
     @NotNull
     public static PlatformMetadata from() {
-        Platform platform = Platform.getCurrentPlatform();
-        EnumOperatingSystem operatingSystem = platform.getOperatingSystem();
-        EnumArchitecture architecture = platform.getArchitecture();
+        OperatingSystem operatingSystem = OperatingSystem.find();
+        Architecture architecture = Architecture.find();
 
-        String classifier = "natives-" + operatingSystem.getOsName().toLowerCase();
-        if (architecture != EnumArchitecture.X86_64) {
-            classifier += "-" + architecture.getIdentifier().toLowerCase();
+        String classifier = "natives-" + operatingSystem.getName().toLowerCase();
+        if (architecture != Architecture.X86_64) {
+            classifier += "-" + architecture.getName().toLowerCase();
             if (classifier.contains("aarch")) {
                 classifier = classifier.replace("aarch", "arm");
             }
