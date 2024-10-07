@@ -1,4 +1,4 @@
-package dev.deftu.lwjgl.isolatedloader.utils;
+package org.polyfrost.lwjgl.isolatedloader.utils;
 
 import java.util.Enumeration;
 

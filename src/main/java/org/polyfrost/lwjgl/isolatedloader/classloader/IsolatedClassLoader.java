@@ -1,15 +1,13 @@
-package dev.deftu.lwjgl.isolatedloader.classloader;
+package org.polyfrost.lwjgl.isolatedloader.classloader;
 
-import dev.deftu.lwjgl.isolatedloader.utils.CombinedEnumeration;
+import org.polyfrost.lwjgl.isolatedloader.utils.CombinedEnumeration;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.net.URLConnection;
 import java.security.CodeSigner;
 import java.security.CodeSource;
 import java.util.Enumeration;
@@ -17,7 +15,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.jar.Manifest;
 
 @SuppressWarnings("unused")
 public class IsolatedClassLoader extends URLClassLoader {

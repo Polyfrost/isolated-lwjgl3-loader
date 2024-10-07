@@ -1,11 +1,11 @@
-package dev.deftu.lwjgl.isolatedloader;
+package org.polyfrost.lwjgl.isolatedloader;
 
 import dev.deftu.filestream.api.Downloader;
 import dev.deftu.filestream.api.Store;
 import dev.deftu.filestream.store.FastHashSchema;
 import dev.deftu.filestream.util.HashingHelper;
-import dev.deftu.lwjgl.isolatedloader.metadata.ArtifactMetadata;
-import dev.deftu.lwjgl.isolatedloader.metadata.PlatformMetadata;
+import org.polyfrost.lwjgl.isolatedloader.metadata.ArtifactMetadata;
+import org.polyfrost.lwjgl.isolatedloader.metadata.PlatformMetadata;
 
 import java.io.IOException;
 import java.net.URL;

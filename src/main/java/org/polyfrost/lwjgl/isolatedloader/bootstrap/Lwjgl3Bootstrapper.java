@@ -1,4 +1,4 @@
-package dev.deftu.lwjgl.isolatedloader.bootstrap;
+package org.polyfrost.lwjgl.isolatedloader.bootstrap;
 
 import org.lwjgl.system.Configuration;
 

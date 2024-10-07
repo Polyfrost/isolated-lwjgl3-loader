@@ -1,4 +1,4 @@
-# lwjgl3-bootstrap
+# isolated-lwjgl3-loader
 
 A quick and easy way of dynamically loading LWJGL3.
 

@@ -1,4 +1,4 @@
-package dev.deftu.lwjgl.isolatedloader.metadata;
+package org.polyfrost.lwjgl.isolatedloader.metadata;
 
 import dev.deftu.filestream.util.Architecture;
 import dev.deftu.filestream.util.OperatingSystem;

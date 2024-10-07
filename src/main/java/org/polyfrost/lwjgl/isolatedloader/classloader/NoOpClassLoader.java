@@ -1,4 +1,4 @@
-package dev.deftu.lwjgl.isolatedloader.classloader;
+package org.polyfrost.lwjgl.isolatedloader.classloader;
 
 import org.jetbrains.annotations.Nullable;
 

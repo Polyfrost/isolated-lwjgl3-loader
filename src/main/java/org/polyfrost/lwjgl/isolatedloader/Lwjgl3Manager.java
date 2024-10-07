@@ -1,9 +1,9 @@
-package dev.deftu.lwjgl.isolatedloader;
+package org.polyfrost.lwjgl.isolatedloader;
 
 import dev.deftu.filestream.FileStream;
 import dev.deftu.filestream.api.Store;
 import dev.deftu.filestream.store.FileStore;
-import dev.deftu.lwjgl.isolatedloader.classloader.IsolatedClassLoader;
+import org.polyfrost.lwjgl.isolatedloader.classloader.IsolatedClassLoader;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -62,7 +62,7 @@ public class Lwjgl3Manager {
             // Bootstrap our isolated LWJGL3 environment inside the isolated class loader
             Path nativesDir = store.getSubStore("natives", Store.ObjectSchema.DIRECT).getStoreRoot();
             System.out.println(nativesDir);
-            classLoader.loadClass("dev.deftu.lwjgl.isolatedloader.bootstrap.Lwjgl3Bootstrapper")
+            classLoader.loadClass("org.polyfrost.lwjgl.isolatedloader.bootstrap.Lwjgl3Bootstrapper")
                     .getMethod("setup", Path.class)
                     .invoke(null, nativesDir);
         } catch (Throwable t) {

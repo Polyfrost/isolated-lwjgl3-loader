@@ -1,4 +1,4 @@
-package dev.deftu.lwjgl.isolatedloader;
+package org.polyfrost.lwjgl.isolatedloader;
 
 import dev.deftu.filestream.util.HashingHelper;
 import org.objectweb.asm.ClassReader;
