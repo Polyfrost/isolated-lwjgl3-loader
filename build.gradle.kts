@@ -12,10 +12,11 @@ repositories {
     maven("https://maven.minecraftforge.net/")
     maven("https://libraries.minecraft.net/")
     maven("https://repo.polyfrost.org/releases")
+    maven("https://repo.polyfrost.org/snapshots")
 }
 
 dependencies {
-    implementation("dev.deftu:filestream:0.4.1")
+    implementation("org.polyfrost:polyio:0.1.0")
 
     compileOnly("org.lwjgl:lwjgl:3.3.3")
     compileOnly("net.minecraft:launchwrapper:1.12")

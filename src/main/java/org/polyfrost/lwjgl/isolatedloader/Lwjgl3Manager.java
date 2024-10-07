@@ -1,9 +1,9 @@
 package org.polyfrost.lwjgl.isolatedloader;
 
-import dev.deftu.filestream.FileStream;
-import dev.deftu.filestream.api.Store;
-import dev.deftu.filestream.store.FileStore;
 import org.polyfrost.lwjgl.isolatedloader.classloader.IsolatedClassLoader;
+import org.polyfrost.polyio.PolyIO;
+import org.polyfrost.polyio.api.Store;
+import org.polyfrost.polyio.store.FileStore;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -23,7 +23,7 @@ public class Lwjgl3Manager {
     public static void initialize(ClassLoader parent, String[] lwjglModules) throws IOException {
         if (store == null) {
             Store globalStore = new FileStore(
-                    FileStream.getLocalStorage(),
+                    PolyIO.getLocalStorage(),
                     "Deftu",
                     Store.ObjectSchema.DIRECT
             );

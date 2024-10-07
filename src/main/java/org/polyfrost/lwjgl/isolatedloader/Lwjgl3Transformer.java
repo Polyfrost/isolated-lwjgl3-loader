@@ -1,11 +1,11 @@
 package org.polyfrost.lwjgl.isolatedloader;
 
-import dev.deftu.filestream.util.HashingHelper;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.*;
+import org.polyfrost.polyio.util.HashingHelper;
 
 import java.io.*;
 import java.lang.reflect.Constructor;

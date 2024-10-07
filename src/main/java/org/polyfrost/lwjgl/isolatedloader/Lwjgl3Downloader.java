@@ -1,9 +1,9 @@
 package org.polyfrost.lwjgl.isolatedloader;
 
-import dev.deftu.filestream.api.Downloader;
-import dev.deftu.filestream.api.Store;
-import dev.deftu.filestream.store.FastHashSchema;
-import dev.deftu.filestream.util.HashingHelper;
+import org.polyfrost.polyio.api.Downloader;
+import org.polyfrost.polyio.api.Store;
+import org.polyfrost.polyio.store.FastHashSchema;
+import org.polyfrost.polyio.util.HashingHelper;
 import org.polyfrost.lwjgl.isolatedloader.metadata.ArtifactMetadata;
 import org.polyfrost.lwjgl.isolatedloader.metadata.PlatformMetadata;
 

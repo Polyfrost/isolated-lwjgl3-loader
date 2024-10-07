@@ -1,7 +1,7 @@
 package org.polyfrost.lwjgl.isolatedloader.metadata;
 
-import dev.deftu.filestream.util.Architecture;
-import dev.deftu.filestream.util.OperatingSystem;
+import org.polyfrost.polyio.util.Architecture;
+import org.polyfrost.polyio.util.OperatingSystem;
 import org.jetbrains.annotations.NotNull;
 
 /**
