@@ -186,7 +186,7 @@ public class Lwjgl3Transformer {
                         if (insn instanceof LdcInsnNode) {
                             LdcInsnNode ldc = (LdcInsnNode) insn;
                             if (ldc.cst.equals("org.lwjgl.opengl.GL")) {
-                                ldc.cst = "dev.deftu.lwjgl.isolatedloader.utils.LwjglFunctionProviderFactory";
+                                ldc.cst = "org.polyfrost.lwjgl.isolatedloader.utils.LwjglFunctionProviderFactory";
                                 break;
                             }
                         }
