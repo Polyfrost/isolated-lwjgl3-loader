@@ -10,8 +10,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class PlatformMetadata {
 
-    private static final String LWJGL_VERSION = "3.3.3";
-
     private final @NotNull String lwjglVersion;
     private final @NotNull String lwjglNativeClassifier;
 
@@ -43,7 +41,12 @@ public final class PlatformMetadata {
             }
         }
 
-        return new PlatformMetadata(LWJGL_VERSION, classifier);
+        return new PlatformMetadata(getPlatformLwjglVersion(), classifier);
+    }
+
+    private static String getPlatformLwjglVersion() {
+        boolean isOnEarlyVersion3 = Boolean.getBoolean("isolatedlwjgl3loader.earlyVersion3");
+        return isOnEarlyVersion3 ? "3.2.2" : "3.3.3";
     }
 
 }
