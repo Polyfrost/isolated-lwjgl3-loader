@@ -24,7 +24,7 @@ public class Lwjgl3Manager {
         if (store == null) {
             Store globalStore = new FileStore(
                     PolyIO.getLocalStorage(),
-                    "Deftu",
+                    "Polyfrost",
                     Store.ObjectSchema.DIRECT
             );
 
@@ -79,7 +79,7 @@ public class Lwjgl3Manager {
      * For example, you can use {@code (int rgba)} instead of {@code (java.awt.Color color)} in your methods.
      *
      * @param clazz The class to get an instance of
-     * @param implementationName The full name (f.ex: "dev.deftu.lwjgl.isolatedloader.MyClass") of the implementation class
+     * @param implementationName The full name (f.ex: "org.polyfrost.lwjgl.isolatedloader.MyClass") of the implementation class
      * @param args The arguments to pass to the constructor
      * @param <T> The type of the class
      * @return An instance of the class
