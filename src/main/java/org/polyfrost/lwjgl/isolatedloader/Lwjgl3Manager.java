@@ -56,7 +56,7 @@ public class Lwjgl3Manager {
 
         try {
             // Bootstrap our isolated LWJGL3 environment inside the isolated class loader
-            Path nativesDir = store.getSubStore("natives", Store.ObjectSchema.DIRECT).getStoreRoot();
+            Path nativesDir = getStore().getSubStore("natives", Store.ObjectSchema.DIRECT).getStoreRoot();
             System.out.println(nativesDir);
             classLoader.loadClass("org.polyfrost.lwjgl.isolatedloader.bootstrap.Lwjgl3Bootstrapper")
                     .getMethod("setup", Path.class)
