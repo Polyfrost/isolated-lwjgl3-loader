@@ -1,6 +1,5 @@
 package org.polyfrost.lwjgl.isolatedloader;
 
-import com.jogamp.common.util.ArrayHashSet;
 import org.polyfrost.lwjgl.isolatedloader.classloader.IsolatedClassLoader;
 import org.polyfrost.polyio.PolyIO;
 import org.polyfrost.polyio.api.Store;
