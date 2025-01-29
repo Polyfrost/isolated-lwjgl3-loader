@@ -22,16 +22,6 @@ public class Lwjgl3Manager {
     }
 
     public static void initialize(ClassLoader parent, String[] lwjglModules) throws IOException {
-        if (store == null) {
-            Store globalStore = new FileStore(
-                    PolyIO.getLocalStorage(),
-                    "Polyfrost",
-                    Store.ObjectSchema.DIRECT
-            );
-
-            store = globalStore.getSubStore("Isolated LWJGL3 Loader");
-        }
-
         if (parentClassLoader != null && parentClassLoader != parent) {
             throw new IllegalArgumentException("Parent class loader cannot be changed");
         } else {
@@ -111,6 +101,16 @@ public class Lwjgl3Manager {
     }
 
     public static Store getStore() {
+        if (store == null) {
+            Store globalStore = new FileStore(
+                    PolyIO.getLocalStorage(),
+                    "Polyfrost",
+                    Store.ObjectSchema.DIRECT
+            );
+
+            store = globalStore.getSubStore("Isolated LWJGL3 Loader");
+        }
+
         return store;
     }
 
