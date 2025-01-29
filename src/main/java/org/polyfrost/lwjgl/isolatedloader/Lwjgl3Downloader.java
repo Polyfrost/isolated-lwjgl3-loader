@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -41,7 +40,7 @@ public class Lwjgl3Downloader {
      * @return the paths to the downloaded modules
      * @throws IOException if an I/O error occurs
      */
-    public static Set<Path> download(String[] lwjglModules) throws IOException {
+    public static Set<Path> downloadJars(String[] lwjglModules) throws IOException {
         if (downloadedModules.containsAll(Arrays.asList(lwjglModules))) {
             return new HashSet<>();
         }
@@ -87,35 +86,93 @@ public class Lwjgl3Downloader {
         return paths;
     }
 
+    /**
+     * Downloads the native libraries for the specified LWJGL modules.
+     *
+     * @param lwjglModules the LWJGL modules to download the natives
+     * @return the paths to the downloaded natives
+     * @throws IOException
+     */
+    public static Set<Path> downloadNatives(String[] lwjglModules) throws IOException {
+        PlatformMetadata platformMetadata = PlatformMetadata.from();
+        Set<ArtifactMetadata> remoteMetadata = getNativeArtifactsFor(platformMetadata, lwjglModules);
+        Set<Downloader.Download<URL>> downloads = new HashSet<>();
+
+        for (ArtifactMetadata artifactMetadata : remoteMetadata) {
+            artifactMetadata.resolveHash(MAVEN_REPOSITORY);
+
+            URL url = new URL(MAVEN_REPOSITORY, artifactMetadata.getMavenPath());
+            downloads.add(DOWNLOADER.download(
+                    url,
+                    LIBRARY_STORE.getObject(
+                            artifactMetadata.getArtifactDeclaration()
+                    ),
+                    Downloader.HashProvider.of(
+                            artifactMetadata.getArtifactHash(),
+                            HashingHelper.SHA1
+                    ),
+                    Downloader.DownloadCallback.NOOP
+            ));
+        }
+
+        return downloads.stream()
+                .map(download -> {
+                    try {
+                        return download.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(String.format(
+                                "Failed to download %s",
+                                download.getSource()
+                        ), e);
+                    }
+                })
+                .collect(Collectors.toSet());
+    }
+
     public static Set<ArtifactMetadata> getArtifactsFor(PlatformMetadata platformMetadata, String[] lwjglModules) {
         Set<ArtifactMetadata> artifacts = new HashSet<>();
 
-        if (!isSystemModuleDownloaded) {
-            artifacts.addAll(lwjglArtifacts(LWJGL_SYSTEM_MODULE, platformMetadata));
+        if (!isSystemModuleDownloaded && !ignoreSystemModule()) {
+            artifacts.add(lwjglArtifact(LWJGL_SYSTEM_MODULE, platformMetadata));
             isSystemModuleDownloaded = true;
         }
 
         for (String lwjglModule : lwjglModules) {
-            artifacts.addAll(lwjglArtifacts(String.format(LWJGL3_ARTIFACT_ID, lwjglModule), platformMetadata));
+            artifacts.add(lwjglArtifact(String.format(LWJGL3_ARTIFACT_ID, lwjglModule), platformMetadata));
         }
 
         return artifacts;
     }
 
-    private static Collection<ArtifactMetadata> lwjglArtifacts(String moduleName, PlatformMetadata platformMeta) {
-        return Arrays.asList(
-                new ArtifactMetadata(
-                        "org.lwjgl",
-                        moduleName,
-                        platformMeta.getLwjglVersion()
-                ),
-                new ArtifactMetadata(
-                        "org.lwjgl",
-                        moduleName,
-                        platformMeta.getLwjglVersion(),
-                        platformMeta.getLwjglNativeClassifier()
-                )
+    public static Set<ArtifactMetadata> getNativeArtifactsFor(PlatformMetadata platformMetadata, String[] lwjglModules) {
+        Set<ArtifactMetadata> artifacts = new HashSet<>();
+
+        for (String lwjglModule : lwjglModules) {
+            artifacts.add(lwjglNativeArtifact(String.format(LWJGL3_ARTIFACT_ID, lwjglModule), platformMetadata));
+        }
+
+        return artifacts;
+    }
+
+    private static ArtifactMetadata lwjglArtifact(String moduleName, PlatformMetadata platformMeta) {
+        return new ArtifactMetadata(
+                "org.lwjgl",
+                moduleName,
+                platformMeta.getLwjglVersion()
         );
+    }
+
+    private static ArtifactMetadata lwjglNativeArtifact(String moduleName, PlatformMetadata platformMetadata) {
+        return new ArtifactMetadata(
+                "org.lwjgl",
+                moduleName,
+                platformMetadata.getLwjglVersion(),
+                platformMetadata.getLwjglNativeClassifier()
+        );
+    }
+
+    private static boolean ignoreSystemModule() {
+        return Boolean.getBoolean("isolatedlwjgl3loader.ignoreSystemModule");
     }
 
     static {

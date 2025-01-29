@@ -1,5 +1,6 @@
 package org.polyfrost.lwjgl.isolatedloader;
 
+import com.jogamp.common.util.ArrayHashSet;
 import org.polyfrost.lwjgl.isolatedloader.classloader.IsolatedClassLoader;
 import org.polyfrost.polyio.PolyIO;
 import org.polyfrost.polyio.api.Store;
@@ -9,6 +10,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Set;
 
 public class Lwjgl3Manager {
@@ -37,8 +39,13 @@ public class Lwjgl3Manager {
             parentClassLoader = parent;
         }
 
-        Set<Path> jars = Lwjgl3Downloader.download(lwjglModules);
-        URL[] urls = jars.stream()
+        Set<Path> jars = Lwjgl3Downloader.downloadJars(lwjglModules);
+        Set<Path> natives = Lwjgl3Downloader.downloadNatives(lwjglModules);
+        Set<Path> allPaths = new HashSet<>();
+        allPaths.addAll(jars);
+        allPaths.addAll(natives);
+
+        URL[] urls = allPaths.stream()
                 .map(Lwjgl3Transformer::maybeTransform)
                 .map(path -> {
                     try {
