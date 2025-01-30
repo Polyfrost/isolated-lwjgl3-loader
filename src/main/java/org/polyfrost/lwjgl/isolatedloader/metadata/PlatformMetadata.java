@@ -45,8 +45,13 @@ public final class PlatformMetadata {
     }
 
     private static String getPlatformLwjglVersion() {
-        boolean isOnEarlyVersion3 = Boolean.getBoolean("isolatedlwjgl3loader.earlyVersion3");
-        String version = isOnEarlyVersion3 ? "3.2.2" : "3.3.3";
+        boolean debug = Boolean.getBoolean("isolatedlwjgl3loader.debug");
+        String platformProvidedVersion = System.getProperty("isolatedlwjgl3loader.lwjglVersion");
+        if (debug && platformProvidedVersion != null) {
+            System.out.println("LWJGL version for this platform was explicitly set to " + platformProvidedVersion);
+        }
+
+        String version = platformProvidedVersion == null ? "3.3.3" : platformProvidedVersion;
         if (Boolean.getBoolean("isolatedlwjgl3loader.debug")) {
             System.out.println("PlatformMetadata will be using LWJGL version " + version);
         }
