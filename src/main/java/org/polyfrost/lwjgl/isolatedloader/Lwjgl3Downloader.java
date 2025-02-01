@@ -28,6 +28,7 @@ public class Lwjgl3Downloader {
     private static final URL MAVEN_REPOSITORY;
 
     private static boolean isSystemModuleDownloaded = false;
+    private static boolean isSystemModuleNativeDownloaded = false;
     private static final Set<String> downloadedModules = new HashSet<>();
 
     private Lwjgl3Downloader() {
@@ -146,6 +147,11 @@ public class Lwjgl3Downloader {
 
     public static Set<ArtifactMetadata> getNativeArtifactsFor(PlatformMetadata platformMetadata, String[] lwjglModules) {
         Set<ArtifactMetadata> artifacts = new HashSet<>();
+
+        if (!isSystemModuleNativeDownloaded && !ignoreSystemModule()) {
+            artifacts.add(lwjglNativeArtifact(LWJGL_SYSTEM_MODULE, platformMetadata));
+            isSystemModuleNativeDownloaded = true;
+        }
 
         for (String lwjglModule : lwjglModules) {
             artifacts.add(lwjglNativeArtifact(String.format(LWJGL3_ARTIFACT_ID, lwjglModule), platformMetadata));

@@ -99,7 +99,7 @@ public class Lwjgl3Transformer {
                     node.accept(writer);
                     buffer = writer.toByteArray();
 
-                    if (isModified && Boolean.getBoolean("isolatedlwjgl3loader.debug")) {
+                    if (isModified && Lwjgl3Manager.isDebug()) {
                         // Write the class to it's class simple name in the current directory
                         String className = node.name.replace('/', '.');
                         try (FileOutputStream fos = new FileOutputStream(className + ".class")) {

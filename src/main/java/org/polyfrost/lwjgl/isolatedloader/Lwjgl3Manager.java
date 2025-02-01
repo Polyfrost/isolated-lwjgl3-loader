@@ -57,13 +57,16 @@ public class Lwjgl3Manager {
         try {
             // Bootstrap our isolated LWJGL3 environment inside the isolated class loader
             Path nativesDir = getStore().getSubStore("natives", Store.ObjectSchema.DIRECT).getStoreRoot();
-            System.out.println(nativesDir);
             classLoader.loadClass("org.polyfrost.lwjgl.isolatedloader.bootstrap.Lwjgl3Bootstrapper")
                     .getMethod("setup", Path.class)
                     .invoke(null, nativesDir);
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+    }
+
+    public static boolean isDebug() {
+        return Boolean.getBoolean("isolatedlwjgl3loader.debug");
     }
 
     /**

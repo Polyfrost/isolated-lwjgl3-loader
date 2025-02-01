@@ -1,5 +1,6 @@
 package org.polyfrost.lwjgl.isolatedloader.metadata;
 
+import org.polyfrost.lwjgl.isolatedloader.Lwjgl3Manager;
 import org.polyfrost.polyio.util.Architecture;
 import org.polyfrost.polyio.util.OperatingSystem;
 import org.jetbrains.annotations.NotNull;
@@ -41,18 +42,22 @@ public final class PlatformMetadata {
             }
         }
 
+        if (Lwjgl3Manager.isDebug()) {
+            System.out.println("PlatformMetadata will be using classifier " + classifier);
+        }
+
         return new PlatformMetadata(getPlatformLwjglVersion(), classifier);
     }
 
     private static String getPlatformLwjglVersion() {
-        boolean debug = Boolean.getBoolean("isolatedlwjgl3loader.debug");
+        boolean isDebug = Lwjgl3Manager.isDebug();
         String platformProvidedVersion = System.getProperty("isolatedlwjgl3loader.lwjglVersion");
-        if (debug && platformProvidedVersion != null) {
+        if (isDebug && platformProvidedVersion != null) {
             System.out.println("LWJGL version for this platform was explicitly set to " + platformProvidedVersion);
         }
 
         String version = platformProvidedVersion == null ? "3.3.3" : platformProvidedVersion;
-        if (Boolean.getBoolean("isolatedlwjgl3loader.debug")) {
+        if (isDebug) {
             System.out.println("PlatformMetadata will be using LWJGL version " + version);
         }
 
