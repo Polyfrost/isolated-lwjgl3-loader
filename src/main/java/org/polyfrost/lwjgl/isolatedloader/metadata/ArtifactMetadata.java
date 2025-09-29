@@ -3,17 +3,22 @@ package org.polyfrost.lwjgl.isolatedloader.metadata;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Scanner;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author xtrm
  * @since 0.0.1
  */
 public final class ArtifactMetadata {
-
     private final @NotNull String groupId;
     private final @NotNull String artifactId;
     private final @NotNull String version;
@@ -87,10 +92,46 @@ public final class ArtifactMetadata {
     }
 
     private static String readUrl(String targetUrl) throws IOException {
-        try (Scanner scanner = new Scanner(new URL(targetUrl).openStream(), StandardCharsets.UTF_8.toString())) {
-            scanner.useDelimiter("\\A");
-            return scanner.hasNext() ? scanner.next() : "";
+        HttpURLConnection connection = (HttpURLConnection) new URL(targetUrl).openConnection();
+        connection.setInstanceFollowRedirects(true);
+        connection.setConnectTimeout(8000);
+        connection.setReadTimeout(15000);
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty("User-Agent",
+                "isolated-lwjgl3-loader (Java/" +
+                        System.getProperty("java.version", "unknown") + "; " +
+                        System.getProperty("os.name", "unknown").replace(' ', '_') + " " +
+                        System.getProperty("os.version", "unknown").replace(' ', '_') + "; " +
+                        System.getProperty("os.arch", "unknown") + ")");
+        connection.setRequestProperty("Accept", "*/*");
+        connection.setRequestProperty("Accept-Encoding", "gzip");
+
+        int code = connection.getResponseCode();
+        InputStream stream = code >= 200 && code < 300 ? connection.getInputStream() : connection.getErrorStream();
+        if (stream == null) {
+            stream = new ByteArrayInputStream(new byte[0]);
+        }
+
+        String encoding = String.valueOf(connection.getContentEncoding());
+        if (encoding.toLowerCase(Locale.ROOT).contains("gzip")) {
+            stream = new GZIPInputStream(stream);
+        }
+
+        byte[] buf = new byte[8192];
+        int r;
+        try (InputStream in = stream; ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            while ((r = in.read(buf)) != -1) {
+                out.write(buf, 0, r);
+            }
+
+            String body = out.toString(StandardCharsets.UTF_8.name());
+            if (code >= 200 && code < 300) {
+                return body;
+            }
+
+            throw new IOException("HTTP " + code + " fetching " + targetUrl + (body.isEmpty() ? "" : " — " + body));
+        } finally {
+            connection.disconnect();
         }
     }
-
 }
