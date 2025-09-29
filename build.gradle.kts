@@ -3,7 +3,7 @@
 plugins {
     java
     kotlin("jvm")
-    val dgtVersion = "2.6.0"
+    val dgtVersion = "2.55.0"
     id("dev.deftu.gradle.tools") version(dgtVersion)
     id("dev.deftu.gradle.tools.publishing.maven") version(dgtVersion)
 }
